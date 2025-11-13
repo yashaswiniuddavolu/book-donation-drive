@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Book Donation Drive</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        nav ul li a:hover {
+            color: var(--secondary);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .login-btn {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .signup-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: 1px solid var(--secondary);
+        }
+
+        .signup-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.9)), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background-color: #c0392b;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary);
+        }
+
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .about-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Donate Form */
+        .form-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        /* Books Section */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .book-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-image {
+            height: 200px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+
+        .book-image i {
+            font-size: 4rem;
+        }
+
+        .book-details {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .book-author {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-price {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .book-condition {
+            background-color: var(--light);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        /* Success Stories */
+        .stories-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .story-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .story-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .story-text::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--light);
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: -1;
+        }
+
+        .story-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light);
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+        }
+
+        /* Contact Section */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .contact-icon {
+            background-color: var(--secondary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Auth Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .about-content, .contact-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-image {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--primary);
+                flex-direction: column;
+                padding: 1rem 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            nav ul.show {
+                display: flex;
+            }
+            
+            nav ul li {
+                margin: 0;
+                text-align: center;
+            }
+            
+            nav ul li a {
+                display: block;
+                padding: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-book"></i>
+                BookShare
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#donate">Donate</a></li>
+                    <li><a href="#books">Available Books</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li id="auth-buttons" class="auth-buttons">
+                        <a href="#" class="auth-btn login-btn" id="login-btn">Login</a>
+                        <a href="#" class="auth-btn signup-btn" id="signup-btn">Sign Up</a>
+                    </li>
+                    <li id="user-menu" class="user-menu" style="display: none;">
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <span id="username">User</span>
+                        <button class="logout-btn" id="logout-btn">Logout</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Authentication Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Welcome to BookShare</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="login">Login</div>
+                    <div class="auth-tab" data-tab="signup">Sign Up</div>
+                </div>
+                
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Login</button>
+                </form>
+                
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" class="form-control" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Give Books a Second Life</h1>
+            <p>Donate today and help others read affordably. Join our community book donation drive to share knowledge and reduce waste.</p>
+            <a href="#donate" class="btn">Donate a Book</a>
+            <a href="#books" class="btn btn-accent">Browse Books</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Our Mission</h2>
+                <p>Connecting readers through affordable books</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Making Reading Accessible to All</h3>
+                    <p>Our community book donation drive aims to create a sustainable cycle of reading by collecting gently used books and making them available at minimal costs to those who need them.</p>
+                    <p>By participating, you're not just donating books - you're sharing knowledge, reducing waste, and helping build a stronger, more literate community.</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="books-donated">152</div>
+                            <div class="stat-label">Books Donated</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="books-sold">89</div>
+                            <div class="stat-label">Books Shared</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="happy-readers">120+</div>
+                            <div class="stat-label">Happy Readers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Community reading">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donate Section -->
+    <section id="donate" style="background-color: var(--light);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Donate a Book</h2>
+                <p>Share your pre-loved books with the community</p>
+            </div>
+            <div class="form-container">
+                <form id="donate-form">
+                    <div class="form-group">
+                        <label for="book-title">Book Title</label>
+                        <input type="text" id="book-title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-author">Author</label>
+                        <input type="text" id="book-author" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-condition">Condition</label>
+                        <select id="book-condition" class="form-control" required>
+                            <option value="">Select Condition</option>
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Very Good">Very Good</option>
+                            <option value="Good">Good</option>
+                            <option value="Acceptable">Acceptable</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-image">Upload Book Image</label>
+                        <input type="file" id="book-image" class="form-control" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="donor-name">Your Name</label>
+                        <input type="text" id="donor-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="donor-contact">Contact Information</label>
+                        <input type="text" id="donor-contact" class="form-control" placeholder="Email or Phone" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Donate Book</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Available Books Section -->
+    <section id="books">
+        <div class="container">
+            <div class="section-title">
+                <h2>Available Books</h2>
+                <p>Find your next read at an affordable price</p>
+            </div>
+            <div class="books-grid" id="books-container">
+                <!-- Books will be dynamically added here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section style="background-color: var(--light);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Success Stories</h2>
+                <p>How our book drive is making a difference</p>
+            </div>
+            <div class="stories-container">
+                <div class="story-card">
+                    <div class="story-text">
+                        Thanks to this initiative, my children now have access to storybooks I couldn't afford otherwise. They look forward to new books every month!
+                    </div>
+                    <div class="story-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h4>Priya Sharma</h4>
+                            <p>Parent & Community Member</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-card">
+                    <div class="story-text">
+                        I've cleared my bookshelf and found new homes for books I loved. It feels great knowing they're being read and appreciated by others in my community.
+                    </div>
+                    <div class="story-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h4>Rahul Verma</h4>
+                            <p>Book Donor</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-card">
+                    <div class="story-text">
+                        As a college student on a tight budget, this book drive has been a lifesaver. I've saved hundreds on textbooks and discovered new favorite authors.
+                    </div>
+                    <div class="story-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h4>Anjali Patel</h4>
+                            <p>College Student</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Contact Us</h2>
+                <p>Get in touch for questions or support</p>
+            </div>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h3>Our Location</h3>
+                            <p>Community Center, Main Street<br>Your City, State 12345</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <h3>Phone Number</h3>
+                            <p>+91 98765 43210</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h3>Email Address</h3>
+                            <p>info@booksharecommunity.org</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h3>WhatsApp</h3>
+                            <p>Message us at +91 98765 43210 for quick responses</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-container">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="contact-name">Your Name</label>
+                            <input type="text" id="contact-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input type="email" id="contact-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-subject">Subject</label>
+                            <input type="text" id="contact-subject" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-message">Message</label>
+                            <textarea id="contact-message" class="form-control" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%;">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BookShare</h3>
+                    <p>Connecting readers through affordable books. Our community-driven initiative promotes literacy and sustainability.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#donate">Donate Books</a></li>
+                        <li><a href="#books">Available Books</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Payment Methods</h3>
+                    <p>We accept payments via:</p>
+                    <ul class="footer-links">
+                        <li>UPI (PhonePe, GPay, Paytm)</li>
+                        <li>Cash on Delivery</li>
+                        <li>Bank Transfer</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 BookShare Community Drive. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // User Authentication System
+        class AuthSystem {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('bookshare_users')) || [];
+                this.currentUser = JSON.parse(localStorage.getItem('bookshare_currentUser')) || null;
+                this.init();
+            }
+            
+            init() {
+                this.updateUI();
+            }
+            
+            hashPassword(password) {
+                // Using bcryptjs to hash passwords
+                return bcrypt.hashSync(password, 10);
+            }
+            
+            verifyPassword(password, hash) {
+                return bcrypt.compareSync(password, hash);
+            }
+            
+            signUp(name, email, password) {
+                // Check if user already exists
+                if (this.users.find(user => user.email === email)) {
+                    return { success: false, message: 'User with this email already exists' };
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now().toString(),
+                    name,
+                    email,
+                    password: this.hashPassword(password),
+                    joinedDate: new Date().toISOString()
+                };
+                
+                this.users.push(newUser);
+                localStorage.setItem('bookshare_users', JSON.stringify(this.users));
+                
+                return { success: true, message: 'Account created successfully' };
+            }
+            
+            login(email, password) {
+                const user = this.users.find(user => user.email === email);
+                
+                if (!user) {
+                    return { success: false, message: 'User not found' };
+                }
+                
+                if (!this.verifyPassword(password, user.password)) {
+                    return { success: false, message: 'Invalid password' };
+                }
+                
+                this.currentUser = user;
+                localStorage.setItem('bookshare_currentUser', JSON.stringify(user));
+                
+                return { success: true, message: 'Login successful', user };
+            }
+            
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('bookshare_currentUser');
+                this.updateUI();
+            }
+            
+            updateUI() {
+                const authButtons = document.getElementById('auth-buttons');
+                const userMenu = document.getElementById('user-menu');
+                const userAvatar = document.getElementById('user-avatar');
+                const username = document.getElementById('username');
+                
+                if (this.currentUser) {
+                    authButtons.style.display = 'none';
+                    userMenu.style.display = 'flex';
+                    userAvatar.textContent = this.currentUser.name.charAt(0).toUpperCase();
+                    username.textContent = this.currentUser.name;
+                } else {
+                    authButtons.style.display = 'flex';
+                    userMenu.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize Authentication System
+        const authSystem = new AuthSystem();
+
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+        });
+
+        // Sample Book Data
+        const sampleBooks = [
+            {
+                title: "The Alchemist",
+                author: "Paulo Coelho",
+                price: "₹50",
+                condition: "Very Good",
+                image: "book1"
+            },
+            {
+                title: "To Kill a Mockingbird",
+                author: "Harper Lee",
+                price: "₹60",
+                condition: "Good",
+                image: "book2"
+            },
+            {
+                title: "The God of Small Things",
+                author: "Arundhati Roy",
+                price: "₹70",
+                condition: "Like New",
+                image: "book3"
+            },
+            {
+                title: "The Palace of Illusions",
+                author: "Chitra Banerjee Divakaruni",
+                price: "₹55",
+                condition: "Very Good",
+                image: "book4"
+            },
+            {
+                title: "The White Tiger",
+                author: "Aravind Adiga",
+                price: "₹65",
+                condition: "Good",
+                image: "book5"
+            },
+            {
+                title: "Wings of Fire",
+                author: "A.P.J. Abdul Kalam",
+                price: "₹45",
+                condition: "Acceptable",
+                image: "book6"
+            }
+        ];
+
+        // Render Books
+        const booksContainer = document.getElementById('books-container');
+        
+        function renderBooks() {
+            booksContainer.innerHTML = '';
+            
+            sampleBooks.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                
+                bookCard.innerHTML = `
+                    <div class="book-image">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="book-details">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">by ${book.author}</p>
+                        <div class="book-meta">
+                            <div class="book-price">${book.price}</div>
+                            <div class="book-condition">${book.condition}</div>
+                        </div>
+                        <button class="btn request-btn" style="width: 100%;">Request This Book</button>
+                    </div>
+                `;
+                
+                booksContainer.appendChild(bookCard);
+            });
+            
+            // Add event listeners to request buttons
+            document.querySelectorAll('.request-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!authSystem.currentUser) {
+                        alert('Please login to request a book');
+                        openAuthModal();
+                        return;
+                    }
+                    
+                    const bookTitle = this.closest('.book-card').querySelector('.book-title').textContent;
+                    alert(`Thank you for your interest in "${bookTitle}"! We'll contact you shortly with payment details.`);
+                });
+            });
+        }
+
+        // Authentication Modal
+        const authModal = document.getElementById('auth-modal');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const closeModal = document.querySelector('.close-modal');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authForms = document.querySelectorAll('.auth-form');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        function openAuthModal() {
+            authModal.style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            authModal.style.display = 'none';
+        }
+
+        function switchAuthTab(tabName) {
+            authTabs.forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            authForms.forEach(form => {
+                if (form.id === `${tabName}-form`) {
+                    form.classList.add('active');
+                } else {
+                    form.classList.remove('active');
+                }
+            });
+        }
+
+        // Event Listeners for Authentication
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAuthModal();
+            switchAuthTab('login');
+        });
+
+        signupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAuthModal();
+            switchAuthTab('signup');
+        });
+
+        closeModal.addEventListener('click', closeAuthModal);
+
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                switchAuthTab(this.dataset.tab);
+            });
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const result = authSystem.login(email, password);
+            
+            if (result.success) {
+                alert('Login successful!');
+                closeAuthModal();
+                authSystem.updateUI();
+                this.reset();
+            } else {
+                alert(result.message);
+            }
+        });
+
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            const result = authSystem.signUp(name, email, password);
+            
+            if (result.success) {
+                alert('Account created successfully! Please login.');
+                switchAuthTab('login');
+                this.reset();
+            } else {
+                alert(result.message);
+            }
+        });
+
+        logoutBtn.addEventListener('click', function() {
+            authSystem.logout();
+            alert('You have been logged out');
+        });
+
+        // Form Submission Handlers
+        document.getElementById('donate-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!authSystem.currentUser) {
+                alert('Please login to donate a book');
+                openAuthModal();
+                return;
+            }
+            
+            alert('Thank you for your donation! We will contact you soon to arrange pickup.');
+            this.reset();
+            
+            // Update donation counter
+            const booksDonated = document.getElementById('books-donated');
+            booksDonated.textContent = parseInt(booksDonated.textContent) + 1;
+        });
+
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBooks();
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    if (this.getAttribute('href').startsWith('#')) {
+                        e.preventDefault();
+                        
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Close mobile menu if open
+                        document.querySelector('nav ul').classList.remove('show');
+                    }
+                });
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === authModal) {
+                    closeAuthModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
